@@ -20,6 +20,10 @@ def __get_clusters_dir(cluster_type):
     return clusters_dir
 
 
+def __get_all_clusters(cluster_type):
+    files = os.listdir(__get_clusters_dir(cluster_type))
+    return list(int(f) for f in files if not f.endswith(".hc"))
+
 def __get_cluster_file(cluster_type, cid):
     return __get_clusters_dir(cluster_type) + "/" + str(cid)
 
@@ -37,20 +41,12 @@ def get_default_id(cluster_type):
     Returns:
       int: The id of the most recently modified cluster.
     """
-    files = os.listdir(__get_clusters_dir(cluster_type))
+    ids = __get_all_clusters(cluster_type)
 
-    most_recent_file = None
-    most_recent_access = 0
+    def last_access(cid) :
+        return os.stat(__get_cluster_file(cluster_type, cid)).st_atime
 
-    for f in files:
-        if not f.endswith(".hc"):
-            fstat = os.stat(os.path.join(__get_clusters_dir(cluster_type), f))
-            if fstat.st_atime > most_recent_access:
-                most_recent_file = int(f)
-                most_recent_access = fstat.st_atime
-
-    return most_recent_file
-
+    return min(ids, key=last_access)
 
 def generate_new_id(cluster_type):
     """Return the highest generated id + 1.
@@ -61,19 +57,8 @@ def generate_new_id(cluster_type):
     Returns (int):
       The new generated id.
     """
-
-    files = os.listdir(__get_clusters_dir(cluster_type))
-
-    if len(files) == 0:
-        return 1
-    else:
-        highest_id = 0
-
-        for f in files:
-            highest_id = max(highest_id, int(f))
-
-        return highest_id + 1
-
+    ids = __get_all_clusters(cluster_type)
+    return  max(ids) + 1 if len(ids) > 0 else 1
 
 def cluster_exists(cluster_type, cid):
     """Determine whether the cluster for the given type and id already exists.
