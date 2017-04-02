@@ -7,8 +7,7 @@ from abc import abstractmethod
 from ConfigParser import ConfigParser
 from subprocess import call
 
-from execo.action import Put, TaktukPut, Get, Remote, TaktukRemote, \
-    SequentialActions
+from execo.action import Put, TaktukPut, Get, Remote, SequentialActions
 from execo.log import style
 from execo.process import SshProcess
 from execo_engine import logger
@@ -337,28 +336,28 @@ class SparkCluster(object):
 
         # 1. Copy hadoop tar file and uncompress
         logger.info("Copy " + tar_file + " to hosts and uncompress")
-        rm_dirs = TaktukRemote("rm -rf " + self.base_dir +
+        rm_dirs = Remote("rm -rf " + self.base_dir +
                                " " + self.conf_dir,
                                self.hosts)
         put_tar = TaktukPut(self.hosts, [tar_file], "/tmp")
-        tar_xf = TaktukRemote(
+        tar_xf = Remote(
             "tar xf /tmp/" + os.path.basename(tar_file) + " -C /tmp",
             self.hosts)
-        rm_tar = TaktukRemote(
+        rm_tar = Remote(
             "rm /tmp/" + os.path.basename(tar_file),
             self.hosts)
         SequentialActions([rm_dirs, put_tar, tar_xf, rm_tar]).run()
 
         # 2. Move installation to base dir
         logger.info("Create installation directories")
-        mv_base_dir = TaktukRemote(
+        mv_base_dir = Remote(
             "mv /tmp/" + os.path.basename(tar_file).replace(".tgz", "") + " " +
             self.base_dir,
             self.hosts)
-        mkdirs = TaktukRemote("mkdir -p " + self.conf_dir +
+        mkdirs = Remote("mkdir -p " + self.conf_dir +
                               " && mkdir -p " + self.logs_dir,
                               self.hosts)
-        chmods = TaktukRemote("chmod g+w " + self.base_dir +
+        chmods = Remote("chmod g+w " + self.base_dir +
                               " && chmod g+w " + self.conf_dir +
                               " && chmod g+w " + self.logs_dir,
                               self.hosts)
@@ -368,7 +367,7 @@ class SparkCluster(object):
         if self.evs_log_dir:
             if self.evs_log_dir.startswith("file://") or \
                             "://" not in self.evs_log_dir:
-                mk_evs_dir = TaktukRemote("mkdir -p " + self.evs_log_dir +
+                mk_evs_dir = Remote("mkdir -p " + self.evs_log_dir +
                                           " && chmod g+w " + self.evs_log_dir,
                                           self.hosts)
                 mk_evs_dir.run()
