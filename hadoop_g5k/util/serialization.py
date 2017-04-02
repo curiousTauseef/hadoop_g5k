@@ -46,7 +46,7 @@ def get_default_id(cluster_type):
     def last_access(cid) :
         return os.stat(__get_cluster_file(cluster_type, cid)).st_atime
 
-    return min(ids, key=last_access)
+    return min(ids, key=last_access) if ids else None
 
 def generate_new_id(cluster_type):
     """Return the highest generated id + 1.
@@ -58,7 +58,7 @@ def generate_new_id(cluster_type):
       The new generated id.
     """
     ids = __get_all_clusters(cluster_type)
-    return  max(ids) + 1 if len(ids) > 0 else 1
+    return  max(ids or [0]) + 1
 
 def cluster_exists(cluster_type, cid):
     """Determine whether the cluster for the given type and id already exists.
