@@ -7,8 +7,7 @@ import tempfile
 from ConfigParser import ConfigParser
 
 from execo.log import style
-from execo.action import Put, TaktukPut, Get, Remote, TaktukRemote, \
-    SequentialActions
+from execo.action import Put, TaktukPut, Get, Remote, SequentialActions
 from execo.process import SshProcess
 from execo_engine import logger
 
@@ -177,8 +176,8 @@ class HadoopCluster(object):
                                " " + self.conf_dir +
                                " " + self.logs_dir +
                                " " + self.hadoop_temp_dir)
-        rm_dirs = TaktukRemote(rm_command, self.hosts)
-        logger.info("Cleaning target: running %s on %s" % (rm_command, self.hosts))
+        rm_dirs = Remote(rm_command, self.hosts)
+        logger.info("Cleaning target")
         rm_dirs.run()
 
         logger.info("Copy " + tar_file + " to hosts")
@@ -186,26 +185,26 @@ class HadoopCluster(object):
         put_tar.run()
 
         logger.info("Decompressing tar file on hosts")
-        tar_xf = TaktukRemote(
+        tar_xf = Remote(
             "tar xf /tmp/" + os.path.basename(tar_file) + " -C /tmp",
             self.hosts)
-        rm_tar = TaktukRemote(
+        rm_tar = Remote(
             "rm /tmp/" + os.path.basename(tar_file),
             self.hosts)
         SequentialActions([tar_xf, rm_tar]).run()
 
         # 2. Move installation to base dir and create other dirs
         logger.info("Create installation directories")
-        mv_base_dir = TaktukRemote(
+        mv_base_dir = Remote(
             "mv /tmp/" +
             os.path.basename(tar_file).replace(".tar.gz", "") + " " +
             self.base_dir,
             self.hosts)
-        mkdirs = TaktukRemote("mkdir -p " + self.conf_dir +
+        mkdirs = Remote("mkdir -p " + self.conf_dir +
                               " && mkdir -p " + self.logs_dir +
                               " && mkdir -p " + self.hadoop_temp_dir,
                               self.hosts)
-        chmods = TaktukRemote("chmod g+w " + self.base_dir +
+        chmods = Remote("chmod g+w " + self.base_dir +
                               " && chmod g+w " + self.conf_dir +
                               " && chmod g+w " + self.logs_dir +
                               " && chmod g+w " + self.hadoop_temp_dir,
