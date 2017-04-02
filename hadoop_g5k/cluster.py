@@ -173,11 +173,11 @@ class HadoopCluster(object):
         self.java_home = get_java_home(self.master)
 
         # 1. Copy hadoop tar file and uncompress
-        rm_command = "rm -rf " + self.base_dir +
+        rm_command = ("rm -rf " + self.base_dir +
                                " " + self.conf_dir +
                                " " + self.logs_dir +
                                " " + self.hadoop_temp_dir,
-                               self.hosts
+                               self.hosts)
         rm_dirs = TaktukRemote(rm_command)
         logger.info("Cleaning target: " + rm_command)
         rm_dirs.run()
