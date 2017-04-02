@@ -176,10 +176,9 @@ class HadoopCluster(object):
         rm_command = ("rm -rf " + self.base_dir +
                                " " + self.conf_dir +
                                " " + self.logs_dir +
-                               " " + self.hadoop_temp_dir,
-                               self.hosts)
-        rm_dirs = TaktukRemote(rm_command)
-        logger.info("Cleaning target: " + rm_command)
+                               " " + self.hadoop_temp_dir)
+        rm_dirs = TaktukRemote(rm_command, self.hosts)
+        logger.info("Cleaning target: running %s on %s" % (rm_command, self.hosts))
         rm_dirs.run()
 
         logger.info("Copy " + tar_file + " to hosts")
