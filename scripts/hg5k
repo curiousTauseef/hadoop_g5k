@@ -5,7 +5,7 @@ import sys
 import threading
 from argparse import ArgumentParser, RawTextHelpFormatter
 
-from execo.action import Get, Put, TaktukRemote
+from execo.action import Get, Put, Remote
 from execo.host import Host
 from execo.log import style
 from execo.process import SshProcess
@@ -351,9 +351,9 @@ def putindfs(hc, action_args):
     # Define and create temp dir
     tmp_dir = "/tmp/hg5k_dest"
     hosts = hc.hosts
-    action_remove = TaktukRemote("rm -rf " + tmp_dir, hosts)
+    action_remove = Remote("rm -rf " + tmp_dir, hosts)
     action_remove.run()
-    action_create = TaktukRemote("mkdir -p " + tmp_dir, hosts)
+    action_create = Remote("mkdir -p " + tmp_dir, hosts)
     action_create.run()
 
     def copy_function(host, files_to_copy):
