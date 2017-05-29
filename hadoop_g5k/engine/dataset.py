@@ -3,7 +3,7 @@ import threading
 
 from abc import ABCMeta, abstractmethod
 
-from execo.action import Put, TaktukRemote
+from execo.action import Put, Remote
 from execo.process import SshProcess
 from execo_engine import logger
 
@@ -117,9 +117,9 @@ class StaticDataset(Dataset):
 
         # Define and create temp dir
         tmp_dir = "/tmp" + dest
-        action_remove = TaktukRemote("rm -rf " + tmp_dir, hosts)
+        action_remove = Remote("rm -rf " + tmp_dir, hosts)
         action_remove.run()
-        action_create = TaktukRemote("mkdir -p " + tmp_dir, hosts)
+        action_create = Remote("mkdir -p " + tmp_dir, hosts)
         action_create.run()
 
         # Generate list of files to copy

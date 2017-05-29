@@ -4,7 +4,7 @@ import socket
 
 from execo import SshProcess
 
-from execo.action import Remote, TaktukRemote
+from execo.action import Remote
 from execo_engine import logger
 
 
@@ -66,7 +66,7 @@ def import_function(name):
 
 def check_java_version(java_major_version, hosts):
 
-    tr = TaktukRemote("java -version 2>&1 | grep version", hosts)
+    tr = Remote("java -version 2>&1 | grep version", hosts)
     tr.run()
 
     for p in tr.processes:
@@ -87,7 +87,7 @@ def get_java_home(host):
 
 
 def check_packages(packages, hosts):
-    tr = TaktukRemote("dpkg -s " + packages, hosts)
+    tr = Remote("dpkg -s " + packages, hosts)
     for p in tr.processes:
         p.nolog_exit_code = p.nolog_error = True
     tr.run()

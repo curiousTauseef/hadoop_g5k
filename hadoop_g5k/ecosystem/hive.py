@@ -6,7 +6,7 @@ import tempfile
 from ConfigParser import ConfigParser
 from subprocess import call
 
-from execo.action import TaktukPut, Get, Remote, TaktukRemote, \
+from execo.action import TaktukPut, Get, Remote, \
     SequentialActions
 from execo.log import style
 from execo.process import SshProcess
@@ -114,14 +114,14 @@ class HiveCluster(object):
 
         # 0. Check that required packages are present
         required_packages = "openjdk-7-jre openjdk-7-jdk"
-        check_packages = TaktukRemote("dpkg -s " + required_packages,
+        check_packages = Remote("dpkg -s " + required_packages,
                                       self.hosts)
         for p in check_packages.processes:
             p.nolog_exit_code = p.nolog_error = True
         check_packages.run()
         if not check_packages.ok:
             logger.info("Packages not installed, trying to install")
-            install_packages = TaktukRemote(
+            install_packages = Remote(
                 "export DEBIAN_MASTER=noninteractive ; " +
                 "apt-get update && apt-get install -y --force-yes " +
                 required_packages, self.hosts).run()
@@ -137,27 +137,27 @@ class HiveCluster(object):
 
         # 1. Copy Hive tar file and uncompress
         logger.info("Copy " + tar_file + " to hosts and uncompress")
-        rm_dirs = TaktukRemote("rm -rf " + self.base_dir +
+        rm_dirs = Remote("rm -rf " + self.base_dir +
                                " " + self.conf_dir +
                                " " + self.warehouse_dir +
                                " " + self.logs_dir,
                                self.hosts)
         put_tar = TaktukPut(self.hosts, [tar_file], "/tmp")
-        tar_xf = TaktukRemote("tar xf /tmp/" + os.path.basename(tar_file) +
+        tar_xf = Remote("tar xf /tmp/" + os.path.basename(tar_file) +
                               " -C /tmp", self.hosts)
         SequentialActions([rm_dirs, put_tar, tar_xf]).run()
 
         # 2. Move installation to base dir
         logger.info("Create installation directories")
-        mv_base_dir = TaktukRemote(
+        mv_base_dir = Remote(
             "mv /tmp/" +
             os.path.basename(tar_file).replace(".tar.gz", "") + " " +
             self.base_dir,
             self.hosts)
-        mkdirs = TaktukRemote("mkdir -p " + self.conf_dir +
+        mkdirs = Remote("mkdir -p " + self.conf_dir +
                               " && mkdir -p " + self.warehouse_dir,
                               self.hosts)
-        chmods = TaktukRemote("chmod g+w " + self.base_dir +
+        chmods = Remote("chmod g+w " + self.base_dir +
                               " && chmod g+w " + self.conf_dir +
                               " && chmod g+w " + self.warehouse_dir,
                               self.hosts)
